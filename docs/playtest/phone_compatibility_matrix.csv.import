@@ -1,0 +1,16 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://6tvwuc08xk7j"
+
+[deps]
+
+source_file="res://docs/playtest/phone_compatibility_matrix.csv"
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

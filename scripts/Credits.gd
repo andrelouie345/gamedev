@@ -12,8 +12,9 @@ func _ready() -> void:
 	var credits := Label.new()
 	credits.text = (
 		"Game design and development: student project\n\n"
-		+ "Art, audio, and fonts: no third-party assets are currently included.\n"
-		+ "The arena uses original greybox geometry and Godot UI controls."
+		+ "Original low-poly AK-47/arms and target assets are included in the project.\n"
+		+ "The range uses project-made geometry and Godot UI controls.\n"
+		+ "No third-party art, fonts, music, or sound effects are included."
 	)
 	credits.position = Vector2(100, 220)
 	credits.size = Vector2(size.x - 200, 220)

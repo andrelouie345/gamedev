@@ -23,6 +23,13 @@ extends Node3D
 
 const PAUSE_SCENE := preload("res://scenes/ui/Pause.tscn")
 const SIMPLE_AI_SCRIPT := preload("res://scripts/SimpleAI.gd")
+const LEVEL_NAMES := [
+	"Fundamentals",
+	"Moving Targets",
+	"Precision Drill",
+	"Tactical Tracking",
+	"Final Qualification",
+]
 
 var _score := 0
 var _score_points := 0
@@ -84,22 +91,7 @@ func _ready() -> void:
 		_simple_ai.connect("score_changed", _on_ai_score_changed)
 		_simple_ai.call("configure", level_number, _score_goal)
 
-	if GameState.current_mode == "online":
-		_message_label.text = "Race: hit %d targets before your opponent" % _score_goal
-	elif enemy_scene != null:
-		var wave_word := "wave" if wave_count == 1 else "waves"
-		var incoming_fire_text := " | Return fire enabled" if enemies_shoot_back else ""
-		_message_label.text = "Goal: Clear %d targets in %d %s%s" % [
-			_score_goal,
-			wave_count,
-			wave_word,
-			incoming_fire_text
-		]
-	else:
-		_message_label.text = "Goal: Hit %d targets in %d seconds | R: Reload" % [
-			targets_required,
-			int(time_limit_seconds)
-		]
+	_update_level_objective()
 	_update_hud()
 
 
@@ -142,6 +134,33 @@ func _create_pause_button() -> void:
 	button.add_theme_font_size_override("font_size", 28)
 	button.pressed.connect(_open_pause_menu)
 	$HUD.add_child(button)
+
+
+func _update_level_objective() -> void:
+	var level_name: String = LEVEL_NAMES[level_number - 1]
+	var objective: String
+	var special_mechanics: String
+	if GameState.current_mode == "online":
+		objective = "Race to %d targets against your opponent." % _score_goal
+		special_mechanics = "Same-Wi-Fi multiplayer"
+	elif enemy_scene != null:
+		objective = "Clear %d targets across %d waves." % [_score_goal, wave_count]
+		special_mechanics = "Return fire enabled" if enemies_shoot_back else "Enemy target waves"
+	else:
+		objective = "Hit %d targets." % targets_required
+		special_mechanics = "Slow moving targets" if targets_move else "Stationary targets"
+
+	if target_scale < 0.95:
+		special_mechanics += " | Smaller targets"
+	if limited_ammo:
+		special_mechanics += " | Limited reserve ammo"
+	_message_label.text = "LEVEL %d: %s\n%s  Time: %d s  |  %s" % [
+		level_number,
+		level_name,
+		objective,
+		ceili(time_limit_seconds),
+		special_mechanics
+	]
 
 
 func _open_pause_menu() -> void:
@@ -285,9 +304,11 @@ func _on_target_hit(target_index: int) -> void:
 		return
 
 	if GameState.current_mode == "online":
+		AudioManager.play_sound("target_hit")
 		Net.submit_score(target_index)
 		return
 
+	AudioManager.play_sound("enemy_destroy" if enemy_scene != null else "target_hit")
 	_score += 1
 	if enemy_scene != null:
 		_enemies_remaining -= 1
@@ -354,6 +375,7 @@ func _finish_level(won: bool, outcome_message := "", online_opponent_score := -1
 	if outcome_message.is_empty():
 		outcome_message = "LEVEL CLEAR!" if won else "TIME UP - TRY AGAIN"
 	_message_label.text = outcome_message
+	AudioManager.play_sound("victory" if won else "defeat")
 
 	var opponent_score := 0
 	if GameState.current_mode == "online":

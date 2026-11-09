@@ -4,3 +4,15 @@
 *.aab
 *.ipa
 export/
+build/
+dist/
+*.keystore
+*.jks
+*.p12
+*.pfx
+*.mobileprovision
+*.pem
+*.key
+.env
+.env.*
+export_presets.cfg

@@ -54,10 +54,39 @@ func host_match(port: int = PORT) -> Error:
 	return OK
 
 
+func get_local_ipv4_addresses() -> PackedStringArray:
+	var addresses := PackedStringArray()
+	for address in IP.get_local_addresses():
+		if not is_valid_ipv4_address(address):
+			continue
+		if address.begins_with("127.") or address.begins_with("169.254."):
+			continue
+		addresses.append(address)
+	return addresses
+
+
+func is_valid_ipv4_address(address: String) -> bool:
+	var octets := address.split(".", true)
+	if octets.size() != 4:
+		return false
+
+	for octet in octets:
+		if not octet.is_valid_int() or str(int(octet)) != octet:
+			return false
+		var value := int(octet)
+		if value < 0 or value > 255:
+			return false
+	return true
+
+
 func join_match(address: String, port: int = PORT) -> Error:
+	var trimmed_address := address.strip_edges()
+	if not is_valid_ipv4_address(trimmed_address):
+		return ERR_INVALID_PARAMETER
+
 	_reset_match_state()
 	var peer := ENetMultiplayerPeer.new()
-	var error := peer.create_client(address.strip_edges(), port)
+	var error := peer.create_client(trimmed_address, port)
 	if error != OK:
 		return error
 

@@ -41,3 +41,34 @@
 - **What I asked:** Continue with the final planned project step.
 - **What was produced:** A title screen with Play, Credits, and Quit; credits accessible from the title and mode-selection screens; a credits document; and Android export and phone-test instructions. The project now starts at the title screen.
 - **What I changed:** No additional user-side code changes were reported for this step yet.
+
+## Follow-up — first-person assets and desktop touch testing
+
+- **What was requested:** Create and integrate original low-poly first-person
+  AK-47/arms and practice-target assets, improve shooting/range gameplay, and
+  enable testing the mobile touch controls from a PC.
+- **What was added:** Original textured GLB assets and a reproducible generator;
+  weapon idle/fire/reload animations; target silhouettes and bullseyes; ammo,
+  reload, recoil, muzzle flash, scoring and progression details; range geometry;
+  and mouse-to-touch emulation. The desktop input path leaves emulated mouse
+  events to the touch controls.
+- **Validation:** Godot 4.7.2 headless imports and level/menu checks were run.
+  Weapon, ammo/reload, hit scoring, headshot and combo behavior were exercised
+  in an engine-level test. No Android device test was performed.
+
+## Follow-up — ITSD 85 audit preparation
+
+- **What was requested:** Audit the existing project against the supplied R1–R10
+  checklist before further changes, preserve existing game systems, and prepare
+  project/documentation/evaluation materials without fabricating team or test
+  evidence.
+- **What was added:** `docs/PROJECT_AUDIT.md`, a README, a GDD, blank consent and
+  evaluation templates, a phone compatibility matrix, an original app icon,
+  IPv4 validation and LAN-address display in the online lobby, clearer level
+  introductions, a background music/effect system with original generated
+  audio, online-leave confirmations, and updated Android/credits guidance and
+  ignore rules.
+- **Validation:** Godot 4.7.2 headless checks loaded all five level objective
+  screens and the title, mode, level-select, lobby, pause, results and credits
+  scenes. IPv4 validation was exercised. The official PDF, two-device tests,
+  Android phone tests and participant results were not available.

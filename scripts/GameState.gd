@@ -83,9 +83,12 @@ func complete_level(level_number: int, stars: int) -> void:
 		push_error("Level clear must award between 1 and 3 stars.")
 		return
 
+	var previous_unlocked_level := unlocked_level
 	level_stars[level_number] = maxi(get_level_stars(level_number), stars)
 	unlocked_level = mini(maxi(unlocked_level, level_number + 1), MAX_LEVELS)
 	_save_progress()
+	if unlocked_level > previous_unlocked_level:
+		AudioManager.play_sound("level_unlock")
 
 
 func record_level_result(

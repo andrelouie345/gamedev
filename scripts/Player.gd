@@ -142,6 +142,7 @@ func _request_fire() -> void:
 	_recoil_pitch = minf(_recoil_pitch + 0.018, 0.06)
 	_notify_ammo_changed()
 	_play_weapon_animation("Fire")
+	AudioManager.play_sound("shot")
 	$Head/Camera3D/MuzzleFlash.visible = true
 	$Head/Camera3D/MuzzleLight.visible = true
 	$Head/Camera3D/MuzzleFlash.scale = Vector3.ONE * randf_range(0.8, 1.2)

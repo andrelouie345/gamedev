@@ -1,6 +1,7 @@
 extends Control
 
 var _sound_button: Button
+var _leave_confirmation: ConfirmationDialog
 
 
 func _ready() -> void:
@@ -27,6 +28,11 @@ func _ready() -> void:
 	_sound_button = _add_button(content, "", _toggle_sound)
 	_update_sound_button()
 	_add_button(content, "Quit to Menu", _quit_to_menu)
+	if GameState.current_mode == "online":
+		_leave_confirmation = ConfirmationDialog.new()
+		_leave_confirmation.dialog_text = "Leave the online match and return to the menu?"
+		_leave_confirmation.confirmed.connect(_leave_online_match)
+		add_child(_leave_confirmation)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -63,10 +69,20 @@ func _update_sound_button() -> void:
 
 
 func _quit_to_menu() -> void:
-	get_tree().paused = false
 	if GameState.current_mode == "online":
-		Net.leave_match()
-		GameState.current_mode = "campaign"
+		_leave_confirmation.popup_centered()
+		return
+	_leave_to_mode_select()
+
+
+func _leave_online_match() -> void:
+	Net.leave_match()
+	GameState.current_mode = "campaign"
+	_leave_to_mode_select()
+
+
+func _leave_to_mode_select() -> void:
+	get_tree().paused = false
 	var error := get_tree().change_scene_to_file("res://scenes/ui/ModeSelect.tscn")
 	if error != OK:
 		push_error("Could not return to mode select: %s" % error_string(error))

@@ -13,11 +13,13 @@ config_version=5
 config/name="Arena Shooter"
 run/main_scene="res://scenes/ui/TitleScreen.tscn"
 config/features=PackedStringArray("4.7")
+config/icon="res://icon.svg"
 
 [autoload]
 
 GameState="*res://scripts/GameState.gd"
 Net="*res://scripts/Net.gd"
+AudioManager="*res://scripts/AudioManager.gd"
 
 [display]
 
