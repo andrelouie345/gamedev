@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/Player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/TouchControls.gd" id="2_touch"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.35
+height = 1.8
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="Head" type="Node3D" parent="."]
+position = Vector3(0, 0.55, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+current = true
+
+[node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D"]
+target_position = Vector3(0, 0, -50)
+collision_mask = 2
+collide_with_areas = true
+
+[node name="TouchLayer" type="CanvasLayer" parent="."]
+
+[node name="TouchControls" type="Control" parent="TouchLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_touch")
+
+[connection signal="movement_changed" from="TouchLayer/TouchControls" to="." method="_on_touch_movement_changed"]
+[connection signal="look_delta" from="TouchLayer/TouchControls" to="." method="_on_touch_look_delta"]
+[connection signal="fire_requested" from="TouchLayer/TouchControls" to="." method="_on_touch_fire_requested"]

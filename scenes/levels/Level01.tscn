@@ -1,0 +1,146 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/actors/Player.tscn" id="1_player"]
+[ext_resource type="Script" path="res://scripts/Level.gd" id="2_level"]
+[ext_resource type="PackedScene" path="res://scenes/actors/Target.tscn" id="3_target"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(32, 0.2, 32)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+size = Vector3(32, 0.2, 32)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
+size = Vector3(32, 4, 0.5)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wall"]
+size = Vector3(32, 4, 0.5)
+
+[sub_resource type="Environment" id="Environment_grey"]
+background_mode = 1
+background_color = Color(0.12, 0.14, 0.17, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.55, 0.58, 0.62, 1)
+ambient_light_energy = 0.7
+
+[node name="Level01" type="Node3D"]
+script = ExtResource("2_level")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_grey")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+rotation = Vector3(-0.9, -0.5, 0)
+light_energy = 1.1
+shadow_enabled = false
+
+[node name="Floor" type="StaticBody3D" parent="."]
+position = Vector3(0, -0.1, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="NorthWall" type="StaticBody3D" parent="."]
+position = Vector3(0, 2, -16)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NorthWall"]
+shape = SubResource("BoxShape3D_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="NorthWall"]
+mesh = SubResource("BoxMesh_wall")
+
+[node name="SouthWall" type="StaticBody3D" parent="."]
+position = Vector3(0, 2, 16)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SouthWall"]
+shape = SubResource("BoxShape3D_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="SouthWall"]
+mesh = SubResource("BoxMesh_wall")
+
+[node name="EastWall" type="StaticBody3D" parent="."]
+position = Vector3(16, 2, 0)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EastWall"]
+shape = SubResource("BoxShape3D_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="EastWall"]
+mesh = SubResource("BoxMesh_wall")
+
+[node name="WestWall" type="StaticBody3D" parent="."]
+position = Vector3(-16, 2, 0)
+rotation = Vector3(0, 1.5708, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="WestWall"]
+shape = SubResource("BoxShape3D_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="WestWall"]
+mesh = SubResource("BoxMesh_wall")
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector3(0, 0.9, 8)
+
+[node name="Targets" type="Node3D" parent="."]
+
+[node name="Target01" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(-8, 1.3, -5)
+
+[node name="Target02" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(-4, 1.3, -5)
+
+[node name="Target03" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(0, 1.3, -5)
+
+[node name="Target04" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(4, 1.3, -5)
+
+[node name="Target05" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(8, 1.3, -5)
+
+[node name="Target06" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(-6, 1.3, -11)
+
+[node name="Target07" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(-2, 1.3, -11)
+
+[node name="Target08" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(2, 1.3, -11)
+
+[node name="Target09" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(6, 1.3, -11)
+
+[node name="Target10" parent="Targets" instance=ExtResource("3_target")]
+position = Vector3(0, 1.3, -14)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="ScoreLabel" type="Label" parent="HUD"]
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 64.0
+offset_right = -20.0
+offset_bottom = 108.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+
+[node name="TimerLabel" type="Label" parent="HUD"]
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 108.0
+offset_right = -20.0
+offset_bottom = 152.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
+
+[node name="MessageLabel" type="Label" parent="HUD"]
+anchor_right = 1.0
+offset_left = 20.0
+offset_top = 12.0
+offset_right = -20.0
+offset_bottom = 56.0
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 32
