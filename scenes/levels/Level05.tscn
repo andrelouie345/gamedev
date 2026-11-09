@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/levels/Level01.tscn" id="1_base"]
+[ext_resource type="PackedScene" path="res://scenes/actors/BotEnemy.tscn" id="2_bot"]
+
+[node name="Level05" instance=ExtResource("1_base")]
+level_number = 5
+time_limit_seconds = 45.0
+enemy_scene = ExtResource("2_bot")
+enemies_per_wave = 3
+wave_count = 3
+enemies_shoot_back = true
+boss_on_final_wave = true
+enemy_attack_damage = 8
+enemy_attack_interval = 2.5

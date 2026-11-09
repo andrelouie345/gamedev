@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="Arena Shooter"
-run/main_scene="res://scenes/levels/Level01.tscn"
+run/main_scene="res://scenes/ui/ModeSelect.tscn"
 config/features=PackedStringArray("4.7")
+
+[autoload]
+
+GameState="*res://scripts/GameState.gd"
+Net="*res://scripts/Net.gd"
 
 [display]
 

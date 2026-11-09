@@ -1,13 +1,16 @@
 extends CharacterBody3D
 
 signal fire_requested
+signal health_changed(current_health: int, maximum_health: int)
 
 const MOVE_SPEED := 5.0
 const GRAVITY := 9.8
 const LOOK_SENSITIVITY := 0.0025
 const MAX_PITCH := deg_to_rad(80.0)
+const MAX_HEALTH := 100
 
 var _touch_move := Vector2.ZERO
+var health := MAX_HEALTH
 
 @onready var camera: Camera3D = $Head/Camera3D
 
@@ -15,6 +18,7 @@ var _touch_move := Vector2.ZERO
 func _ready() -> void:
 	# Keep the mouse visible until the player clicks, which makes desktop testing easier.
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	add_to_group("player")
 
 
 func _physics_process(delta: float) -> void:
@@ -67,6 +71,14 @@ func _on_touch_fire_requested() -> void:
 
 func _request_fire() -> void:
 	fire_requested.emit()
+
+
+func take_damage(amount: int) -> void:
+	if amount <= 0 or health <= 0:
+		return
+
+	health = maxi(health - amount, 0)
+	health_changed.emit(health, MAX_HEALTH)
 
 
 func _apply_look(delta: Vector2) -> void:
