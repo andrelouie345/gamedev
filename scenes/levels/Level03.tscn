@@ -8,3 +8,7 @@ level_number = 3
 time_limit_seconds = 60.0
 enemy_scene = ExtResource("2_bot")
 enemies_per_wave = 5
+targets_move = true
+movement_speed = 2.2
+movement_range = 2.4
+target_scale = 0.8

@@ -5,6 +5,13 @@ extends Node3D
 @export var shot_range := 50.0
 @export_range(1, 5) var level_number := 1
 @export var targets_move := false
+@export_enum("Horizontal", "Vertical", "Unpredictable") var movement_pattern := 0
+@export var movement_speed := 1.5
+@export var movement_range := 1.5
+@export_range(0.5, 1.5, 0.05) var target_scale := 1.0
+@export var limited_ammo := false
+@export var reserve_ammo := 90
+@export var miss_penalty := 25
 @export var target_scene: PackedScene
 @export var enemy_scene: PackedScene
 @export var enemies_per_wave := 0
@@ -18,6 +25,10 @@ const PAUSE_SCENE := preload("res://scenes/ui/Pause.tscn")
 const SIMPLE_AI_SCRIPT := preload("res://scripts/SimpleAI.gd")
 
 var _score := 0
+var _score_points := 0
+var _shots_fired := 0
+var _shots_hit := 0
+var _combo := 0
 var _score_goal := 0
 var _wave_number := 0
 var _enemies_remaining := 0
@@ -32,6 +43,8 @@ var _simple_ai: Node
 @onready var _timer_label: Label = $HUD/TimerLabel
 @onready var _message_label: Label = $HUD/MessageLabel
 @onready var _health_label: Label = $HUD/HealthLabel
+@onready var _ammo_label: Label = $HUD/AmmoLabel
+@onready var _precision_label: Label = $HUD/PrecisionLabel
 
 
 func _ready() -> void:
@@ -42,7 +55,9 @@ func _ready() -> void:
 
 	_time_left = time_limit_seconds
 	_player.connect("fire_requested", _on_fire_requested)
+	_player.connect("ammo_changed", _on_ammo_changed)
 	_player.connect("health_changed", _on_player_health_changed)
+	_player.call("configure_ammo", 30, reserve_ammo if limited_ammo else maxi(reserve_ammo, 90))
 	_on_player_health_changed(100, 100)
 	_create_pause_button()
 
@@ -73,13 +88,15 @@ func _ready() -> void:
 		_message_label.text = "Race: hit %d targets before your opponent" % _score_goal
 	elif enemy_scene != null:
 		var wave_word := "wave" if wave_count == 1 else "waves"
-		_message_label.text = "Goal: Defeat %d bots in %d %s before time runs out" % [
+		var incoming_fire_text := " | Return fire enabled" if enemies_shoot_back else ""
+		_message_label.text = "Goal: Clear %d targets in %d %s%s" % [
 			_score_goal,
 			wave_count,
-			wave_word
+			wave_word,
+			incoming_fire_text
 		]
 	else:
-		_message_label.text = "Goal: Hit %d targets in %d seconds" % [
+		_message_label.text = "Goal: Hit %d targets in %d seconds | R: Reload" % [
 			targets_required,
 			int(time_limit_seconds)
 		]
@@ -149,8 +166,16 @@ func _spawn_target_layout(positions: Array[Vector3]) -> void:
 		_targets.add_child(target)
 		target.position = positions[target_index]
 		target.connect("hit", _on_target_hit.bind(target_index))
-		if targets_move:
-			target.call("start_moving", target_index)
+		var pattern := movement_pattern if targets_move else -1
+		target.call(
+			"start_moving",
+			target_index,
+			movement_speed,
+			pattern,
+			movement_range,
+			target_scale,
+			target_index % 3 == 2
+		)
 
 
 func _target_positions(count: int) -> Array[Vector3]:
@@ -176,14 +201,47 @@ func _on_fire_requested() -> void:
 	if not _is_active:
 		return
 
+	_shots_fired += 1
 	_raycast.target_position = Vector3(0.0, 0.0, -shot_range)
 	_raycast.force_raycast_update()
-	if not _raycast.is_colliding():
-		return
+	var did_hit := false
+	var headshot := false
+	var bullseye := false
+	if _raycast.is_colliding():
+		var collider := _raycast.get_collider() as Node
+		if collider != null:
+			headshot = collider.is_in_group("headshots")
+			var target := collider.get_parent() if headshot else collider
+			if target != null and target.is_in_group("targets"):
+				did_hit = bool(target.call("register_hit", headshot))
+				bullseye = (
+					not headshot
+					and target.has_method("is_bullseye")
+					and target.call("is_bullseye")
+					and target.to_local(_raycast.get_collision_point()).length() <= 0.25
+				)
 
-	var collider := _raycast.get_collider() as Node
-	if collider != null and collider.is_in_group("targets"):
-		collider.call("register_hit")
+	if did_hit:
+		_shots_hit += 1
+		_combo += 1
+		_score_points += 100
+		if headshot:
+			_score_points += 100
+		elif bullseye:
+			_score_points += 150
+		_score_points += mini(_combo - 1, 8) * 25
+	else:
+		_combo = 0
+		if GameState.current_mode == "campaign":
+			_score_points = maxi(_score_points - miss_penalty, 0)
+	_update_hud()
+
+
+func _on_ammo_changed(current_ammo: int, reserve: int, is_reloading: bool) -> void:
+	_ammo_label.text = "Reloading..." if is_reloading else "Ammo: %d / %d | R: Reload" % [
+		current_ammo,
+		reserve,
+	]
 
 
 func _on_online_scores_updated() -> void:
@@ -265,7 +323,11 @@ func _spawn_enemy_wave() -> void:
 			is_final_boss,
 			enemies_shoot_back and GameState.current_mode == "campaign",
 			enemy_attack_damage,
-			enemy_attack_interval
+			enemy_attack_interval,
+			movement_speed,
+			movement_pattern,
+			target_scale,
+			movement_range
 		)
 		enemy.connect("hit", _on_target_hit)
 
@@ -282,10 +344,11 @@ func _finish_level(won: bool, outcome_message := "", online_opponent_score := -1
 	if won:
 		if GameState.current_mode == "campaign":
 			var time_ratio := _time_left / maxf(time_limit_seconds, 1.0)
+			var accuracy := float(_shots_hit) / float(maxi(_shots_fired, 1))
 			stars = 1
-			if time_ratio > 0.25:
+			if time_ratio > 0.15 and accuracy >= 0.60:
 				stars = 2
-			if time_ratio > 0.5:
+			if time_ratio > 0.35 and accuracy >= 0.82:
 				stars = 3
 
 	if outcome_message.is_empty():
@@ -300,11 +363,15 @@ func _finish_level(won: bool, outcome_message := "", online_opponent_score := -1
 	GameState.record_level_result(
 		level_number,
 		won,
-		_score,
+		_score_points if GameState.current_mode == "campaign" else _score,
 		_time_left,
 		stars,
 		opponent_score,
-		outcome_message
+		outcome_message,
+		_shots_fired,
+		_shots_hit,
+		_score_points,
+		_score
 	)
 
 	await get_tree().create_timer(1.0).timeout
@@ -332,15 +399,24 @@ func _update_hud() -> void:
 			_score_goal
 		]
 	elif enemy_scene != null:
-		_score_label.text = "Bots: %d / %d     Wave: %d / %d" % [
+		_score_label.text = "Targets: %d / %d     Wave: %d / %d" % [
 			_score,
 			_score_goal,
 			_wave_number,
 			wave_count
 		]
 	else:
-		_score_label.text = "Targets: %d / %d" % [_score, _score_goal]
+		_score_label.text = "Targets: %d / %d     Score: %d     Combo: %d" % [
+			_score,
+			_score_goal,
+			_score_points,
+			_combo
+		]
 	_timer_label.text = "Time: %d" % ceili(_time_left)
+	var accuracy := 0.0
+	if _shots_fired > 0:
+		accuracy = float(_shots_hit) / float(_shots_fired) * 100.0
+	_precision_label.text = "Accuracy: %.0f%%     Shots: %d" % [accuracy, _shots_fired]
 
 
 func _target_position(target_index: int) -> Vector3:
@@ -349,4 +425,4 @@ func _target_position(target_index: int) -> Vector3:
 	var row := floori(float(target_index) / columns)
 	var x_position := float(column - 2) * 4.0
 	var z_position := -5.0 - float(row) * 3.0
-	return Vector3(x_position, 1.3, z_position)
+	return Vector3(x_position, 1.45, z_position)

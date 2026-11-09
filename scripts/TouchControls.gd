@@ -3,13 +3,16 @@ extends Control
 signal movement_changed(value: Vector2)
 signal look_delta(value: Vector2)
 signal fire_requested
+signal reload_requested
 
 const JOYSTICK_RADIUS := 108.0
 const FIRE_RADIUS := 66.0
+const RELOAD_RADIUS := 45.0
 
 var _stick_touch_id := -1
 var _look_touch_id := -1
 var _fire_touch_id := -1
+var _reload_touch_id := -1
 var _stick_offset := Vector2.ZERO
 
 
@@ -30,8 +33,10 @@ func _draw() -> void:
 	var scale_factor := _ui_scale()
 	var stick_center := _stick_center(scale_factor)
 	var fire_center := _fire_center(scale_factor)
+	var reload_center := _reload_center(scale_factor)
 	var stick_radius := JOYSTICK_RADIUS * scale_factor
 	var fire_radius := FIRE_RADIUS * scale_factor
+	var reload_radius := RELOAD_RADIUS * scale_factor
 
 	draw_circle(stick_center, stick_radius, Color(0.05, 0.07, 0.09, 0.48))
 	draw_arc(stick_center, stick_radius, 0.0, TAU, 48, Color(0.85, 0.88, 0.9, 0.75), 3.0)
@@ -50,6 +55,17 @@ func _draw() -> void:
 		28,
 		Color.WHITE
 	)
+	draw_circle(reload_center, reload_radius, Color(0.12, 0.16, 0.18, 0.78))
+	draw_arc(reload_center, reload_radius, 0.0, TAU, 36, Color(0.85, 0.88, 0.9, 0.8), 2.0)
+	draw_string(
+		ThemeDB.fallback_font,
+		reload_center + Vector2(-30.0 * scale_factor, 6.0 * scale_factor),
+		"R",
+		HORIZONTAL_ALIGNMENT_CENTER,
+		60.0 * scale_factor,
+		20,
+		Color.WHITE
+	)
 
 	var center := size * 0.5
 	draw_line(center + Vector2(-12, 0), center + Vector2(-4, 0), Color.WHITE, 2.0)
@@ -61,7 +77,11 @@ func _draw() -> void:
 func _begin_touch(touch_id: int, position: Vector2) -> void:
 	var scale_factor := _ui_scale()
 	var fire_center := _fire_center(scale_factor)
-	if position.distance_to(fire_center) <= FIRE_RADIUS * scale_factor:
+	if position.distance_to(_reload_center(scale_factor)) <= RELOAD_RADIUS * scale_factor:
+		_reload_touch_id = touch_id
+		reload_requested.emit()
+		queue_redraw()
+	elif position.distance_to(fire_center) <= FIRE_RADIUS * scale_factor:
 		_fire_touch_id = touch_id
 		fire_requested.emit()
 		queue_redraw()
@@ -88,6 +108,9 @@ func _end_touch(touch_id: int) -> void:
 	elif touch_id == _fire_touch_id:
 		_fire_touch_id = -1
 		queue_redraw()
+	elif touch_id == _reload_touch_id:
+		_reload_touch_id = -1
+		queue_redraw()
 
 
 func _update_stick(position: Vector2) -> void:
@@ -110,3 +133,7 @@ func _stick_center(scale_factor: float) -> Vector2:
 
 func _fire_center(scale_factor: float) -> Vector2:
 	return Vector2(size.x - 125.0 * scale_factor, size.y - 125.0 * scale_factor)
+
+
+func _reload_center(scale_factor: float) -> Vector2:
+	return Vector2(size.x - 235.0 * scale_factor, size.y - 190.0 * scale_factor)

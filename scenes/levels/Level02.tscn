@@ -6,3 +6,6 @@
 level_number = 2
 targets_required = 15
 time_limit_seconds = 60.0
+targets_move = true
+movement_speed = 0.9
+movement_range = 1.5

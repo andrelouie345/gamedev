@@ -1,8 +1,9 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="PackedScene" path="res://scenes/actors/Player.tscn" id="1_player"]
 [ext_resource type="Script" path="res://scripts/Level.gd" id="2_level"]
 [ext_resource type="PackedScene" path="res://scenes/actors/Target.tscn" id="3_target"]
+[ext_resource type="PackedScene" path="res://scenes/levels/RangeDetails.tscn" id="4_range"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(32, 0.2, 32)
@@ -22,6 +23,14 @@ background_color = Color(0.12, 0.14, 0.17, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.55, 0.58, 0.62, 1)
 ambient_light_energy = 0.7
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.37, 0.4, 0.39, 1)
+roughness = 0.97
+
+[sub_resource type="StandardMaterial3D" id="Material_concrete"]
+albedo_color = Color(0.43, 0.46, 0.45, 1)
+roughness = 0.96
 
 [node name="Level01" type="Node3D"]
 script = ExtResource("2_level")
@@ -43,6 +52,7 @@ shape = SubResource("BoxShape3D_floor")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
 mesh = SubResource("BoxMesh_floor")
+surface_material_override/0 = SubResource("Material_floor")
 
 [node name="NorthWall" type="StaticBody3D" parent="."]
 position = Vector3(0, 2, -16)
@@ -52,6 +62,7 @@ shape = SubResource("BoxShape3D_wall")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="NorthWall"]
 mesh = SubResource("BoxMesh_wall")
+surface_material_override/0 = SubResource("Material_concrete")
 
 [node name="SouthWall" type="StaticBody3D" parent="."]
 position = Vector3(0, 2, 16)
@@ -61,6 +72,7 @@ shape = SubResource("BoxShape3D_wall")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="SouthWall"]
 mesh = SubResource("BoxMesh_wall")
+surface_material_override/0 = SubResource("Material_concrete")
 
 [node name="EastWall" type="StaticBody3D" parent="."]
 position = Vector3(16, 2, 0)
@@ -71,6 +83,7 @@ shape = SubResource("BoxShape3D_wall")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="EastWall"]
 mesh = SubResource("BoxMesh_wall")
+surface_material_override/0 = SubResource("Material_concrete")
 
 [node name="WestWall" type="StaticBody3D" parent="."]
 position = Vector3(-16, 2, 0)
@@ -81,11 +94,14 @@ shape = SubResource("BoxShape3D_wall")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="WestWall"]
 mesh = SubResource("BoxMesh_wall")
+surface_material_override/0 = SubResource("Material_concrete")
 
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector3(0, 0.9, 8)
 
 [node name="Targets" type="Node3D" parent="."]
+
+[node name="RangeDetails" parent="." instance=ExtResource("4_range")]
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
@@ -124,3 +140,41 @@ offset_right = -20.0
 offset_bottom = 56.0
 horizontal_alignment = 1
 theme_override_font_sizes/font_size = 32
+
+[node name="AmmoLabel" type="Label" parent="HUD"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -410.0
+offset_top = -76.0
+offset_right = -28.0
+offset_bottom = -28.0
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 26
+
+[node name="PrecisionLabel" type="Label" parent="HUD"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -430.0
+offset_top = -120.0
+offset_right = -28.0
+offset_bottom = -78.0
+horizontal_alignment = 2
+theme_override_font_sizes/font_size = 22
+
+[node name="Reticle" type="Label" parent="HUD"]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -13.0
+offset_top = -22.0
+offset_right = 13.0
+offset_bottom = 22.0
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1
+theme_override_font_sizes/font_size = 30

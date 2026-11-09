@@ -28,8 +28,30 @@ func _ready() -> void:
 			result.opponent_score
 		],
 			Vector2(0, 180), Vector2(size.x, 50), 36)
-	_add_label("Score: %d     Time left: %d s" % [result.score, ceili(result.time_left)],
-		Vector2(0, 250), Vector2(size.x, 50), 30)
+	var progress_text := (
+		"Targets cleared: %d     Time left: %d s" % [
+			result.get("targets_cleared", result.score),
+			ceili(result.time_left),
+		]
+		if result.mode == "campaign"
+		else "Score: %d     Time left: %d s" % [result.score, ceili(result.time_left)]
+	)
+	_add_label(progress_text, Vector2(0, 250), Vector2(size.x, 50), 30)
+	var score_points: int = result.get("score_points", result.score)
+	var accuracy: float = result.get("accuracy", 0.0)
+	var shots_fired: int = result.get("shots_fired", 0)
+	var shots_hit: int = result.get("shots_hit", 0)
+	_add_label(
+		"Precision score: %d     Accuracy: %.0f%%     Hits: %d / %d" % [
+			score_points,
+			accuracy,
+			shots_hit,
+			shots_fired,
+		],
+		Vector2(0, 305),
+		Vector2(size.x, 50),
+		26
+	)
 
 	var buttons := HBoxContainer.new()
 	buttons.position = Vector2(0, 380)

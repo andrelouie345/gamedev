@@ -1,11 +1,25 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/Player.gd" id="1_player"]
 [ext_resource type="Script" path="res://scripts/TouchControls.gd" id="2_touch"]
+[ext_resource type="PackedScene" path="res://assets/models/ak47_hands.glb" id="3_weapon"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
 radius = 0.35
 height = 1.8
+
+[sub_resource type="SphereMesh" id="SphereMesh_muzzle"]
+radius = 0.13
+height = 0.26
+radial_segments = 8
+rings = 4
+
+[sub_resource type="StandardMaterial3D" id="Material_muzzle"]
+shading_mode = 0
+albedo_color = Color(1, 0.62, 0.18, 1)
+emission_enabled = true
+emission = Color(1, 0.34, 0.06, 1)
+emission_energy_multiplier = 3.5
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1_player")
@@ -18,6 +32,25 @@ position = Vector3(0, 0.55, 0)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 current = true
+
+[node name="WeaponAnchor" type="Node3D" parent="Head/Camera3D"]
+position = Vector3(0.32, -0.25, -0.55)
+scale = Vector3(0.52, 0.52, 0.52)
+
+[node name="AK47Hands" parent="Head/Camera3D/WeaponAnchor" instance=ExtResource("3_weapon")]
+
+[node name="MuzzleFlash" type="MeshInstance3D" parent="Head/Camera3D"]
+visible = false
+position = Vector3(0.32, -0.242, -1.117)
+mesh = SubResource("SphereMesh_muzzle")
+surface_material_override/0 = SubResource("Material_muzzle")
+
+[node name="MuzzleLight" type="OmniLight3D" parent="Head/Camera3D"]
+visible = false
+position = Vector3(0.32, -0.242, -1.117)
+light_color = Color(1, 0.55, 0.25, 1)
+light_energy = 1.4
+omni_range = 2.0
 
 [node name="RayCast3D" type="RayCast3D" parent="Head/Camera3D"]
 target_position = Vector3(0, 0, -50)
@@ -39,3 +72,4 @@ script = ExtResource("2_touch")
 [connection signal="movement_changed" from="TouchLayer/TouchControls" to="." method="_on_touch_movement_changed"]
 [connection signal="look_delta" from="TouchLayer/TouchControls" to="." method="_on_touch_look_delta"]
 [connection signal="fire_requested" from="TouchLayer/TouchControls" to="." method="_on_touch_fire_requested"]
+[connection signal="reload_requested" from="TouchLayer/TouchControls" to="." method="_on_touch_reload_requested"]

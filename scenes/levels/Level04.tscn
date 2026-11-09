@@ -12,3 +12,7 @@ wave_count = 2
 enemies_shoot_back = true
 enemy_attack_damage = 5
 enemy_attack_interval = 3.5
+targets_move = true
+movement_pattern = 2
+movement_speed = 2.8
+target_scale = 0.72

@@ -18,6 +18,11 @@ var last_level_result: Dictionary = {
 	"mode": "campaign",
 	"opponent_score": 0,
 	"result_text": "No result yet",
+	"shots_fired": 0,
+	"shots_hit": 0,
+	"accuracy": 0.0,
+	"score_points": 0,
+	"targets_cleared": 0,
 }
 
 
@@ -90,7 +95,11 @@ func record_level_result(
 	time_left: float,
 	stars: int,
 	opponent_score := 0,
-	result_text := ""
+	result_text := "",
+	shots_fired := 0,
+	shots_hit := 0,
+	score_points := 0,
+	targets_cleared := 0
 ) -> void:
 	last_level_result = {
 		"level_number": level_number,
@@ -101,6 +110,13 @@ func record_level_result(
 		"mode": current_mode,
 		"opponent_score": opponent_score,
 		"result_text": result_text,
+		"shots_fired": shots_fired,
+		"shots_hit": shots_hit,
+		"accuracy": (
+			float(shots_hit) / float(shots_fired) * 100.0 if shots_fired > 0 else 0.0
+		),
+		"score_points": score_points,
+		"targets_cleared": targets_cleared,
 	}
 	if won and current_mode == "campaign":
 		complete_level(level_number, stars)
