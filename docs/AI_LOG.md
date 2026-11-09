@@ -35,3 +35,9 @@
 - **What I asked:** Continue with the online multiplayer step.
 - **What was produced:** Host/join lobby over ENet, seeded identical target layouts, small target-index score events, host-authoritative score and winner decisions, a five-second join timeout, disconnect handling, and online result screens kept separate from campaign saves.
 - **What I changed:** No additional user-side code changes were reported for this step yet.
+
+## Step 1g - title screen, credits, and Android export
+
+- **What I asked:** Continue with the final planned project step.
+- **What was produced:** A title screen with Play, Credits, and Quit; credits accessible from the title and mode-selection screens; a credits document; and Android export and phone-test instructions. The project now starts at the title screen.
+- **What I changed:** No additional user-side code changes were reported for this step yet.

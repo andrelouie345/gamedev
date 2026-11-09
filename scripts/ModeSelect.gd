@@ -8,8 +8,20 @@ func _ready() -> void:
 	_add_button("Versus Bot", Vector2(size.x * 0.5 - 170, 355), _open_versus_bot)
 	_add_button("Online (Same Wi-Fi)", Vector2(size.x * 0.5 - 170, 440), _open_lobby)
 	if not GameState.menu_message.is_empty():
-		_add_label(GameState.menu_message, Vector2(80, 560), Vector2(size.x - 160, 70), 28)
+		_add_label(GameState.menu_message, Vector2(80, 530), Vector2(size.x - 160, 64), 28)
 		GameState.menu_message = ""
+	_add_button(
+		"Title Screen",
+		Vector2(size.x * 0.5 - 260, 625),
+		_open_title_screen,
+		Vector2(240, 56)
+	)
+	_add_button(
+		"Credits",
+		Vector2(size.x * 0.5 + 20, 625),
+		_open_credits,
+		Vector2(240, 56)
+	)
 
 
 func _open_campaign() -> void:
@@ -27,18 +39,32 @@ func _open_lobby() -> void:
 	_change_scene("res://scenes/ui/Lobby.tscn")
 
 
+func _open_title_screen() -> void:
+	_change_scene("res://scenes/ui/TitleScreen.tscn")
+
+
+func _open_credits() -> void:
+	GameState.credits_return_scene = "res://scenes/ui/ModeSelect.tscn"
+	_change_scene("res://scenes/ui/Credits.tscn")
+
+
 func _change_scene(path: String) -> void:
 	var error := get_tree().change_scene_to_file(path)
 	if error != OK:
 		push_error("Could not open scene %s: %s" % [path, error_string(error)])
 
 
-func _add_button(text: String, position_value: Vector2, callback: Callable) -> void:
+func _add_button(
+	text: String,
+	position_value: Vector2,
+	callback: Callable,
+	button_size := Vector2(340, 72)
+) -> void:
 	var button := Button.new()
 	button.text = text
 	button.position = position_value
-	button.size = Vector2(340, 72)
-	button.add_theme_font_size_override("font_size", 32)
+	button.size = button_size
+	button.add_theme_font_size_override("font_size", 28)
 	button.pressed.connect(callback)
 	add_child(button)
 

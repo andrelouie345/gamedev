@@ -8,6 +8,7 @@ var level_stars: Dictionary = {}
 var current_mode := "campaign"
 var sound_enabled := true
 var menu_message := ""
+var credits_return_scene := "res://scenes/ui/ModeSelect.tscn"
 var last_level_result: Dictionary = {
 	"level_number": 1,
 	"won": false,
